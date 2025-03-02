@@ -33,10 +33,14 @@ const getSingleTask = async (req, res) => {
     const { id: taskID } = req.params;
     // const task = await Task.findOne({_id: taskID})
     const task = await Task.findById(taskID);
-    if (!mongoose.Types.ObjectId.isValid(taskID) || !task) {
+    // if (!mongoose.Types.ObjectId.isValid(taskID) || !task) {
+    if (!task) {
       return res
         .status(404)
-        .json({ Success: false, message: `There is no task with id: ${taskID}` });
+        .json({
+          Success: false,
+          message: `There is no task with id: ${taskID}`,
+        });
     }
     res.status(200).json({ success: true, task });
   } catch (err) {
