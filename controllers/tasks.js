@@ -1,16 +1,17 @@
 const Task = require("../models/task");
+const mongoose = require("mongoose");
 
 const getAllTasks = async (req, res) => {
   try {
     const tasks = await Task.find({});
     res.status(200).json({
-      Success: true,
+      success: true,
       message: "Tasks fetched Successfully",
       count: tasks.length,
       tasks,
     });
   } catch (err) {
-    res.status(500).json({ Success: false, Error: err.message });
+    res.status(500).json({ success: false, Error: err.message });
   }
 };
 
@@ -23,12 +24,24 @@ const createTask = async (req, res) => {
       task,
     });
   } catch (err) {
-    res.status(500).json({ Success: false, Error: err.message });
+    res.status(500).json({ success: false, Error: err.message });
   }
 };
 
-const getSingleTask = (req, res) => {
-  res.status(200).send("Get Single Task");
+const getSingleTask = async (req, res) => {
+  try {
+    const { id: taskID } = req.params;
+    // const task = await Task.findOne({_id: taskID})
+    const task = await Task.findById(taskID);
+    if (!mongoose.Types.ObjectId.isValid(taskID) || !task) {
+      return res
+        .status(404)
+        .json({ Success: false, message: `There is no task with id: ${taskID}` });
+    }
+    res.status(200).json({ success: true, task });
+  } catch (err) {
+    res.status(500).json({ Success: false, error: err.message });
+  }
 };
 
 const updateTask = (req, res) => {
