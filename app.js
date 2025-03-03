@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-const PORT = 3000;
+const port = process.env.PORT || 3000;
 const app = express();
 const tasks = require("./routes/tasks");
 const connectDB = require("./db/connect");
@@ -18,7 +18,7 @@ app.use(notFound);
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
-    app.listen(PORT, console.log(`Server running on http://localhost:${PORT}`));
+    app.listen(port, console.log(`Server running on http://localhost:${port}`));
   } catch (error) {
     console.log(error);
   }
