@@ -11,7 +11,7 @@ const getAllTasks = async (req, res) => {
       tasks,
     });
   } catch (err) {
-    res.status(500).json({ success: false, Error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -24,7 +24,7 @@ const createTask = async (req, res) => {
       task,
     });
   } catch (err) {
-    res.status(500).json({ success: false, Error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -32,19 +32,26 @@ const getSingleTask = async (req, res) => {
   try {
     const { id: taskID } = req.params;
     // const task = await Task.findOne({_id: taskID})
-    const task = await Task.findById(taskID);
-    // if (!mongoose.Types.ObjectId.isValid(taskID) || !task) {
-    if (!task) {
-      return res
-        .status(404)
-        .json({
-          Success: false,
-          message: `There is no task with id: ${taskID}`,
-        });
+    if (!mongoose.Types.ObjectId.isValid(taskID)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid task ID: ${taskID}`,
+      });
     }
-    res.status(200).json({ success: true, task });
+    const task = await Task.findById(taskID);
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: `There is no task with id: ${taskID}`,
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Task fetched successfully",
+      task,
+    });
   } catch (err) {
-    res.status(500).json({ Success: false, error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -52,8 +59,26 @@ const updateTask = (req, res) => {
   res.status(200).send("Update Task");
 };
 
-const deleteTask = (req, res) => {
-  res.status(200).send("Delete Task");
+const deleteTask = async (req, res) => {
+  try {
+    const { id: taskID } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(taskID)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid task ID: ${taskID}`,
+      });
+    }
+    const task = await Task.findByIdAndDelete(taskID);
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: `No task with id: ${taskID}`,
+      });
+    }
+    res.status(200).json({ success: true, message: "Task deleted successfully", task });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 };
 
 module.exports = {
